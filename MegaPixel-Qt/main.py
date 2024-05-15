@@ -63,7 +63,7 @@ class megapixel(QtWidgets.QMainWindow):
 
         # Jpegxl
         self.checkBoxJpegXlQ.stateChanged.connect(self.ToggleJpegXlQ)
-        self.checkBoxJpegXlSize.stateChanged.connect(self.ToggleJpegXlSize)
+        # self.checkBoxJpegXlSize.stateChanged.connect(self.ToggleJpegXlSize) #Commented out because there's no support in the current jxl version
         self.checkBoxJpegXlEncode.stateChanged.connect(self.ToggleJpegXlEncode)
         self.checkBoxJpegXlDecode.stateChanged.connect(self.ToggleJpegXlDecode)
         self.comboBoxJpegXlDecodeFormat.currentIndexChanged.connect(self.ToggleJpegXlDecodeSettings)
@@ -146,7 +146,7 @@ class megapixel(QtWidgets.QMainWindow):
                     self.checkBoxJpegXlDecodesjpeg.setChecked(p['jpegxlDecodeSjpeg'])
                     self.spinBoxJpegXlQ.setValue(int(p['jpegxlEncodeQ']))
                     self.spinBoxJpegXlSize.setValue(int(p['jpegxlEncodeSize']))
-                    self.comboBoxJpegXlSpeed.setCurrentIndex(p['jpegxlEncodeSpeed'])
+                    self.spinBoxJpegXlEffort.setCurrentIndex(p['jpegxlEncodeSpeed'])
                     self.comboBoxJpegXlDecodeFormat.setCurrentIndex(p['jpegxlDecodeFormat'])
                     self.spinBoxJpegXlDecodeQ.setValue(int(p['jpegxlDecodeQ']))
                     self.spinBoxMozjpegQ.setValue(int(p['mozjpegQ']))
@@ -192,7 +192,7 @@ class megapixel(QtWidgets.QMainWindow):
             'jpegxlEncodeQ': self.spinBoxJpegXlQ.value(),
             'jpegxlEncodeSizeActive': self.checkBoxJpegXlSize.isChecked(),
             'jpegxlEncodeSize': self.spinBoxJpegXlSize.value(),
-            'jpegxlEncodeSpeed': self.comboBoxJpegXlSpeed.currentIndex(),
+            'jpegxlEncodeSpeed': self.spinBoxJpegXlEffort.currentIndex(),
             'jpegxlDecodeFormat': self.comboBoxJpegXlDecodeFormat.currentIndex(),
             'jpegxlDecodeSjpeg': self.checkBoxJpegXlDecodesjpeg.isChecked(),
             'jpegxlDecodeQ': self.spinBoxJpegXlDecodeQ.value(),
@@ -255,7 +255,7 @@ class megapixel(QtWidgets.QMainWindow):
             self.checkBoxJpegXlSize.setEnabled(True)
             self.spinBoxJpegXlSize.setEnabled(True)
             self.labelJpegXlSpeed.setEnabled(True)
-            self.comboBoxJpegXlSpeed.setEnabled(True)
+            self.spinBoxJpegXlEffort.setEnabled(True)
             self.labelJpegXlDecodeFormat.setEnabled(False)
             self.comboBoxJpegXlDecodeFormat.setEnabled(False)
             self.checkBoxJpegXlDecodesjpeg.setEnabled(False)
@@ -270,7 +270,7 @@ class megapixel(QtWidgets.QMainWindow):
             self.checkBoxJpegXlSize.setEnabled(False)
             self.spinBoxJpegXlSize.setEnabled(False)
             self.labelJpegXlSpeed.setEnabled(False)
-            self.comboBoxJpegXlSpeed.setEnabled(False)
+            self.spinBoxJpegXlEffort.setEnabled(False)
             self.labelJpegXlDecodeFormat.setEnabled(True)
             self.comboBoxJpegXlDecodeFormat.setEnabled(True)
             self.checkBoxJpegXlDecodesjpeg.setEnabled(True)
@@ -507,11 +507,11 @@ class megapixel(QtWidgets.QMainWindow):
     # Sets the params for jpegxl encoding
     def SetJpegXlParams(self, custom):
         if self.checkBoxCustomSettings.isChecked() is False or custom is True:
-            self.cjxlParams = " --speed=" + str(self.comboBoxJpegXlSpeed.currentIndex() + 3)
-            if self.checkBoxJpegXlSize.isChecked() is True:
-                self.cjxlParams += " --target_size=" + str(self.spinBoxJpegXlSize.value() * 1000)
-            elif self.checkBoxJpegXlQ.isChecked() is True:
-                self.cjxlParams += " --quality=" + str(self.spinBoxJpegXlQ.value())
+            self.cjxlParams = " --effort=" + str(self.spinBoxJpegXlEffort.value())
+            # if self.checkBoxJpegXlSize.isChecked() is True:
+            #     self.cjxlParams += " --target_size=" + str(self.spinBoxJpegXlSize.value() * 1000) #Commented out because there's no support in the current jxl version
+            if self.checkBoxJpegXlQ.isChecked() is True:
+                self.cjxlParams += " --lossless_jpeg=0 --quality=" + str(self.spinBoxJpegXlQ.value())
 
     # Sets the params for jpegxl decoding
     def SetJpegXlDecodeParams(self, custom):
@@ -539,14 +539,15 @@ class megapixel(QtWidgets.QMainWindow):
     # Sets the jpegxl encoder executable path
     def EJpegXlPath(self):
         if platform.system() == "Windows":
-            return " \"" + os.path.join(os.path.dirname(__file__), "Encoders", "jpegxl", "cjpegxl.exe") + "\" "
+            return " \"" + os.path.join(os.path.dirname(__file__), "Encoders", "jxl", "cjxl.exe") + "\" "
         else:
             return "cjxl "
 
     # Sets the jpegxl decoder executable path
     def DJpegXlPath(self):
+        print(" \"" + os.path.join(os.path.dirname(__file__), "Encoders", "jxl", "djxl.exe") + "\" ")
         if platform.system() == "Windows":
-            return " \"" + os.path.join(os.path.dirname(__file__), "Encoders", "jpegxl", "djpegxl.exe") + "\" "
+            return " \"" + os.path.join(os.path.dirname(__file__), "Encoders", "jxl", "djxl.exe") + "\" "
         else:
             return "djxl "
 
@@ -622,9 +623,11 @@ class megapixel(QtWidgets.QMainWindow):
                 if self.checkBoxJpegXlEncode.isChecked() is True:
                     cjxlCMD = self.EJpegXlPath() + " \"" + image_input + "\" \"" + imgOutput + ".jxl\"" + self.cjxlParams
                     commands.append(cjxlCMD)
+                    print(cjxlCMD)
                 else:
-                    djxlCMD = self.DJpegXlPath() + " \"" + image_input + "\" \"" + imgOutput + "." + self.comboBoxJpegXlDecodeFormat.currentText() + "\" " + self.djxlParams
+                    djxlCMD = self.DJpegXlPath() + " \"" + image_input + "\" \"" + imgOutput + "." + self.comboBoxJpegXlDecodeFormat.currentText() + "\" " + str(self.djxlParams or '')
                     commands.append(djxlCMD)
+                    print(djxlCMD)
             elif self.comboBoxEncoders.currentIndex() == 3:
                 # mozjpeg encoding
                 mozjCMD = self.MozJpegPath() + self.mozjParams + " -outfile \"" + imgOutput + ".jpg\" \"" + image_input + "\""
@@ -648,7 +651,6 @@ class megapixel(QtWidgets.QMainWindow):
         self.thread.finished.connect(self.thread.deleteLater)
         # Start the thread
         self.thread.start()
-
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
