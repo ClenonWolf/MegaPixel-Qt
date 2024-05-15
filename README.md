@@ -1,7 +1,7 @@
 <h1 align="center">MegaPixel-Qt</h1>
 <h3 align="center">Updated verion of the original MegaPixel-Qt repository which has been archived.</h3>
-<h3 align="center">As of now only JXL has been updated but might attempt to update all encoders.</h3>
-<h3 align="center">Qt GUI for avif, webp, jpegxl and mozjpeg.</h3>
+<h4 align="center">As of now only JXL has been updated but might attempt to update all encoders.</h4>
+<h4 align="center">Qt GUI for avif, webp, jpegxl and mozjpeg.</h4>
 <h4 align="center">Scroll down for Windows Version</h4>
 
 ![image](https://i.imgur.com/tp5Eepc.png)
